@@ -41,3 +41,4 @@ yarn-error.log*
 next-env.d.ts
 
 /app/generated/prisma
+# Force clean build Fri May  1 18:23:31 IST 2026
