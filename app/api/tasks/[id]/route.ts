@@ -5,7 +5,7 @@ import { authOptions } from "../../auth/[...nextauth]/route"
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -24,9 +24,10 @@ export async function PATCH(
 
     const body = await request.json()
     const { status } = body
+    const { id } = await params
 
     const task = await prisma.task.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!task) {
@@ -38,7 +39,7 @@ export async function PATCH(
     }
 
     const updatedTask = await prisma.task.update({
-      where: { id: params.id },
+      where: { id },
       data: { status }
     })
 
@@ -54,7 +55,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -71,8 +72,10 @@ export async function DELETE(
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
+    const { id } = await params
+
     const task = await prisma.task.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!task) {
@@ -84,7 +87,7 @@ export async function DELETE(
     }
 
     await prisma.task.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ message: "Task deleted" })
