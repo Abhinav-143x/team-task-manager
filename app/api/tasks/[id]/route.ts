@@ -10,8 +10,16 @@ export async function PATCH(
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session?.user?.id) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    })
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
     const body = await request.json()
@@ -25,7 +33,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Task not found" }, { status: 404 })
     }
 
-    if (task.userId !== session.user.id) {
+    if (task.userId !== user.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
@@ -51,8 +59,16 @@ export async function DELETE(
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session?.user?.id) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    })
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
     const task = await prisma.task.findUnique({
@@ -63,7 +79,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Task not found" }, { status: 404 })
     }
 
-    if (task.userId !== session.user.id) {
+    if (task.userId !== user.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
